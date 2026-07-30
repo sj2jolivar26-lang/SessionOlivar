@@ -9,6 +9,7 @@ package recordingapp.controller;
  *
  * @author Audit
  */
+package recordingapp.controller;
 
 import recordingapp.model.Song;
 import recordingapp.service.SongService;

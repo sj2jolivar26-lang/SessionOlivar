@@ -61,4 +61,51 @@ public class UserService {
 
         repository.deleteUser(userId);
     }
+public boolean registerUser(
+        String username,
+        String password) {
+
+    if (username == null ||
+        username.trim().isEmpty()) {
+
+        System.out.println(
+                "Username cannot be empty."
+        );
+
+        return false;
+    }
+
+    if (password == null ||
+        password.trim().isEmpty()) {
+
+        System.out.println(
+                "Password cannot be empty."
+        );
+
+        return false;
+    }
+
+    if (repository.usernameExists(username)) {
+
+        System.out.println(
+                "Username already exists."
+        );
+
+        return false;
+    }
+
+    User user = new User(
+            0,
+            username,
+            password,
+            "USER"
+    );
+
+    repository.addUser(user);
+
+    return true;
+}
+
+
+
 }

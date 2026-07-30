@@ -10,14 +10,15 @@ package recordingapp.main;
  * @author Audit
  */
 
-import java.util.Scanner;
 
-import recordingapp.controller.ArtistController;
-import recordingapp.controller.AlbumController;
-import recordingapp.controller.SongController;
+import recordingapp.controller.AdminController;
 import recordingapp.controller.UserController;
-import recordingapp.controller.PlaylistController;
-import recordingapp.controller.PlaylistSongController;
+import recordingapp.model.User;
+import recordingapp.service.LoginService;
+import recordingapp.service.UserService;
+import recordingapp.view.LoginView;
+
+import java.util.Scanner;
 
 public class Main {
 
@@ -26,32 +27,22 @@ public class Main {
         Scanner scanner =
                 new Scanner(System.in);
 
-        ArtistController artistController =
-                new ArtistController();
+        LoginService loginService =
+                new LoginService();
 
-        AlbumController albumController =
-                new AlbumController();
+        UserService userService =
+                new UserService();
 
-        SongController songController =
-                new SongController();
+        LoginView loginView =
+                new LoginView(scanner);
 
-        UserController userController =
-                new UserController();
+        boolean running = true;
 
-        PlaylistController playlistController =
-                new PlaylistController();
-
-        PlaylistSongController
-                playlistSongController =
-                new PlaylistSongController();
-
-        int choice;
-
-        do {
+        while (running) {
 
             System.out.println();
             System.out.println(
-                    "========================================"
+                    "======================================"
             );
 
             System.out.println(
@@ -59,83 +50,69 @@ public class Main {
             );
 
             System.out.println(
-                    "========================================"
+                    "======================================"
             );
 
-            System.out.println(
-                    "1. Artist Management"
-            );
-
-            System.out.println(
-                    "2. Album Management"
-            );
-
-            System.out.println(
-                    "3. Song Management"
-            );
-
-            System.out.println(
-                    "4. User Management"
-            );
-
-            System.out.println(
-                    "5. Playlist Management"
-            );
-
-            System.out.println(
-                    "6. Playlist Songs"
-            );
-
-            System.out.println(
-                    "0. Exit"
-            );
+            System.out.println("1. Login");
+            System.out.println("2. Register");
+            System.out.println("0. Exit");
 
             System.out.print(
                     "Enter choice: "
             );
 
-            choice =
-                    scanner.nextInt();
+            String choice =
+                    scanner.nextLine();
 
             switch (choice) {
 
-                case 1:
+                case "1":
 
-                    artistController.start();
+                    User loggedIn =
+                            login(
+                                    loginService,
+                                    loginView
+                            );
+
+                    if (loggedIn != null) {
+
+                        if (loggedIn
+                                .getAccountType()
+                                .equalsIgnoreCase("ADMIN")) {
+
+                            AdminController admin =
+                                    new AdminController(
+                                            scanner
+                                    );
+
+                            admin.start();
+
+                        } else {
+
+                            UserController user =
+                                    new UserController(
+                                            scanner,
+                                            loggedIn
+                                    );
+
+                            user.start();
+                        }
+                    }
 
                     break;
 
-                case 2:
+                case "2":
 
-                    albumController.start();
-
-                    break;
-
-                case 3:
-
-                    songController.start();
+                    register(
+                            scanner,
+                            userService
+                    );
 
                     break;
 
-                case 4:
+                case "0":
 
-                    userController.start();
-
-                    break;
-
-                case 5:
-
-                    playlistController.start();
-
-                    break;
-
-                case 6:
-
-                    playlistSongController.start();
-
-                    break;
-
-                case 0:
+                    running = false;
 
                     System.out.println(
                             "Thank you for using the system!"
@@ -149,9 +126,84 @@ public class Main {
                             "Invalid choice."
                     );
             }
-
-        } while (choice != 0);
+        }
 
         scanner.close();
+    }
+
+    private static User login(
+            LoginService service,
+            LoginView view) {
+
+        System.out.println();
+        System.out.println(
+                "===== LOGIN ====="
+        );
+
+        String username =
+                view.getUsername();
+
+        String password =
+                view.getPassword();
+
+        User user =
+                service.login(
+                        username,
+                        password
+                );
+
+        if (user == null) {
+
+            view.showLoginFailed();
+
+        } else {
+
+            view.showLoginSuccess();
+
+            System.out.println(
+                    "Welcome, "
+                    + user.getUsername()
+                    + "!"
+            );
+        }
+
+        return user;
+    }
+
+    private static void register(
+            Scanner scanner,
+            UserService service) {
+
+        System.out.println();
+        System.out.println(
+                "===== USER REGISTRATION ====="
+        );
+
+        System.out.print(
+                "Username: "
+        );
+
+        String username =
+                scanner.nextLine();
+
+        System.out.print(
+                "Password: "
+        );
+
+        String password =
+                scanner.nextLine();
+
+        boolean success =
+                service.registerUser(
+                        username,
+                        password
+                );
+
+        if (success) {
+
+            System.out.println(
+                    "Registration successful!"
+            );
+        }
     }
 }

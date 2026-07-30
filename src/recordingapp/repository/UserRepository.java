@@ -17,6 +17,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository {
+public boolean usernameExists(String username) {
+
+    String sql =
+            "SELECT user_id FROM users " +
+            "WHERE username = ?";
+
+    try (Connection conn =
+                 DatabaseConnection.getConnection();
+         PreparedStatement stmt =
+                 conn.prepareStatement(sql)) {
+
+        stmt.setString(1, username);
+
+        ResultSet rs =
+                stmt.executeQuery();
+
+        return rs.next();
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Error checking username: "
+                + e.getMessage()
+        );
+    }
+
+    return false;
+}
+
 
     public void addUser(User user) {
 
